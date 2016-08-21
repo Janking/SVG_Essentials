@@ -229,6 +229,83 @@ b  d  f
 ```
 ## 第七章 路径
 
+### 1. path命令
+SVG中所有基本形状都是path的简写形式，但是建议使用简写形式，因为这样可以使SVG文档更可读。
+
+path元素更通用，可以通过制定一系列相互连接的线、弧、曲线来绘制任意形状的轮廓，这些轮廓也可以填充或者绘制轮廓线，也可以用来定义裁剪区域或蒙版。
+
+下表为path命令总结，其中大写表示绝对坐标，小写表示相对坐标：
+
+
+命令 | 参数 | 说明
+---|---|---
+M m | x y | 移动画笔到制定坐标
+L l | x y | 绘制一条到给定坐标的线
+H h | x  | 绘制一条到给定x坐标的横线
+V v |  y | 绘制一条到给定y坐标的垂线
+A a | rx ry x-axis-rotation large-arc sweep x y  | 圆弧曲线命令有7个参数，依次表示x方向半径、y方向半径、旋转角度、大圆标识、顺逆时针标识、目标点x、目标点y。大圆标识和顺逆时针以0和1表示。0表示小圆、逆时针
+Q q | x1 y1 x y | 绘制一条从当前点到x,y控制点为x1,y1的二次贝塞尔曲线
+T t | x y | 绘制一条从当前点到x,y的光滑二次贝塞尔曲线，控制点为前一个Q命令的控制点的中心对称点，如果没有前一条则已当前点为控制点。
+C c | x1 y1 x2 y2 x y | 绘制一条从当前点到x,y控制点为x1,y1 x2,y2的三次贝塞尔曲线
+S s | x2 y2 x y | 绘制一条从当前点到x,y的光滑三次贝塞尔曲线。第一个控制点为前一个C命令的第二个控制点的中心对称点，如果没有前一条曲线，则第一个控制点为当前的点。
+
+路径的填充同样可以使用fill-rule属性指定填充规则，如果需要填充一个中空的形状，则只需要注意外侧路径顺逆时针方向和内侧空心区域顺逆时针方向即可。
+
+
+### 2. marker元素
+
+marker元素用来在path上添加一个标记，比如箭头之类的。
+
+首先需要定义好marker元素，然后在path中引用，一个marker标记是一个独立的图形，有自己的私有坐标。
+
+
+```
+<defs>
+    <marker id="marker" markerWidth="10" markerHeight="10" refX="0" refY="4" orient="auto">
+        <path d="M 0 0 4 4 0 8" style="fill:none;stroke:black;"/>
+    </marker>
+</defs>
+
+<path d="M 10 20 100 20 A 20 30 0 0 1 120 50 L 120 110"
+    style="marker-start:url(#marker);marker-mid:url(#marker);marker-end:url(#marker);fill:none;stroke:black;"/>
+```
+
+
+marker属性 | 说明
+---|---
+markerWidth | marker标记的宽度
+markerHeight | marker标记的高度
+refX refY | 指定marker中的哪个坐标与路径的开始坐标对齐
+orient | 自动旋转匹配路径的方向，需要设置为auto
+markerUnits | 这个属性决定标记的坐标系统是否需要根据path的笔画宽度调整，如果设置为strokeWidth，则标记会自动调整大小。如果设置为useSpaceOnUse，则不会自动调整标记的大小。
+viewBox preserveAspectRatio | 设置标记的显示效果，比如可以将标记的(0,0)设置在标记网格中心
+
+path中使用marker-start,marker-mid,marker-end,marker属性来设置标记的位置。如果使用marker属性，则表示同时设置marker-start,marker-mid,marker-end三个属性。
+
+除在path中以属性的形式设置标记外，还可以在css中设置：
+
+
+```
+path{
+    marker:url(#marker_id);
+}
+```
+
+但是此时要注意，如果id为marker_id的标记中也有path元素，则会出现自身无限引用自身的情况，因此需要说明marker中的path元素不需要添加标记：
+
+
+```
+path{
+    marker:url(#marker_id);
+}
+marker#marker_id path{ //marker下的id为marker的元素下的path元素不需要marker标记
+    marker:none;
+}
+```
+
+
+
+
 
 
 
