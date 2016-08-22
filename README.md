@@ -304,6 +304,38 @@ marker#marker_id path{ //marker下的id为marker的元素下的path元素不需�
 ```
 
 
+## 第八章 图案和渐变
+
+填充图形或笔画除了使用fill,stroke纯色之外，还可以使用图案和渐变填充。
+
+### 1. 图案
+
+使用图案填充图形，首先要定义一个水平或垂直方向的重复的图案对象，然后用它填充另一个对象或者作为笔画使用。这个图形对象呗称为"tile"(瓷砖)。
+
+图案对象使用pattern元素定义，pattern元素内部包裹了图案的path元素。定义好之后下一个需要解决的问题是如何排列图案，那就需要使用patternUnits属性.
+
+如果希望图案的大小基于要填充对象的大小计算，则需要设置patternUnits属性为objectBoundingBox(0到1之间的小数或百分比)，并需要指定图案左上角的x和y坐标。
+
+
+```
+<defs>
+	<pattern id="tile" x="0" y="0" width="20%" height="20%" patternUnits="objectBoundingBox">
+    	    <path d="M 0 0 Q 5 20 10 10 T 20 20" style="stroke:black;fill:none"></path>
+	    <path d="M 0 0 h 20 v 20 h -20 z" style="stroke:black;fill:none"></path>
+	</pattern>
+</defs>
+<path d="M 0 0 Q 5 20 10 10 T 20 20" style="stroke:black;fill:none"></path>
+<path d="M 0 0 h 20 v 20 h -20 z" style="stroke:black;fill:none"></path>
+<rect x="40" y="0" width="100" height="100" style="fill:url(#tile);stroke:black"></rect>	
+<rect x="155" y="0" width="70" height="80" style="fill:url(#tile);stroke:black"></rect>
+<rect x="250" y="0" width="150" height="130" style="fill:url(#tile);stroke:black"></rect>
+```
+
+![image](https://github.com/xswei/SVG_Essentials/blob/master/image/8.1.jpg)
+
+在上图中，第一个正方形宽高都为100，百分之20刚好为图案的尺寸，因此恰好平铺。在第二个图中，正方形的宽高分别为70和80，百分之20小于20，因此图案会被截断。在第三个正方形中，宽高的百分之20大于图案的尺寸，因此图案平铺时会出现间隙。
+
+
 
 
 
