@@ -359,6 +359,180 @@ marker#marker_id path{ //marker下的id为marker的元素下的path元素不需�
 此时明确制定了图案的宽高，并且x和y表示图案与所在的坐标系对齐(0,0点)。在第一个正方形中，由于正方形的x和y为20的整数倍，所以不会出现裁剪情况，第二，三个正方形的x坐标不是20的整数倍，所会出现裁剪。
 
 
+##### patternContentUnits属性
+
+在上面两个例子中，pattern元素内的path元素的坐标都是用户坐标，如果想基于被填充图形设置，则需要设置patternContentUnits属性。patternContentUnits属性默认为userSpaceOnUse,当设置patternContentUnits属性为objectBoundingBox时就可以使用百分比来设置图案的大小。
+
+```
+<defs>
+	<pattern id="tile" x="0" y="0" width=".2" height=".2" patternUnits="objectBoundingBox" patternContentUnits="objectBoundingBox">
+		<path d="M 0 0 Q .05 .2 .1 .1 T .2 .2" style="stroke:black;fill:none;stroke-width:0.01;"></path>
+		<path d="M 0 0 h 0.2 v 0.2 h -0.2z" style="stroke:black;stroke-width:0.01;fill:none"></path>
+	</pattern>
+</defs>
+<g transform="translate(20,20)">
+	<rect x="0" y="0" width="100" height="100" style="fill:url(#tile);stroke:black"></rect>	
+</g>
+<g transform="translate(135,20)">
+	<rect x="0" y="0" width="150" height="100" style="fill:url(#tile);stroke:black"></rect>	
+</g>
+<g transform="translate(300,20)">
+    <rect x="0" y="0" width="80" height="150" style="fill:url(#tile);stroke:black"></rect>	
+</g>
+```
+
+![image](https://github.com/xswei/SVG_Essentials/blob/master/image/8.3.jpg)
+
+当设置patternContentUnits属性为bojectBoundingBox时，图案的大小会根据百分比调整，主要就可以调整图案的宽高比，填满被填充图形。
+
+此外图案也可以由另一个图案填充，这就是图案的嵌套。
+
+### 2. 线性渐变
+线性渐变是一系列颜色沿着一条直线过渡，在特定的位置指定想要的颜色，被称为渐变点。渐变点是渐变结构的一部分，颜色是表现的一部分。
+
+线性渐变使用linearGradient元素表示：
+
+
+```
+<defs>
+	<linearGradient id="linear">
+		<stop offset="0%" style="stop-color:#ffcc00;"></stop>
+		<stop offset="100%" style="stop-color:#0099cc;"></stop>
+	</linearGradient>
+</defs>
+	<rect x="20" y="20" width="200" height="100" style="fill:url(#linear);stroke:black;"></rect>
+```
+![image](https://github.com/xswei/SVG_Essentials/blob/master/image/8.4.jpg)
+
+stop元素有两个必要属性：offset和stop-color。offset属性用来指定在哪个点的颜色应该等于stop-color。offset的取值范围0%-100%。
+
+stop元素的属性：
+
+
+属性 | 说明
+---|---
+offset | 必需，取值范围0%-100%
+stop-color | 必需，对应offset位置点的颜色
+stop-opacity | 对应offset位置点的不透明度
+
+linearGradient元素属性：
+
+
+属性 | 说明
+---|---
+x1,y1 | 渐变的起点位置，使用百分比表示，默认的渐变方向是从左到右
+x2,y2 | 渐变的终点位置，使用百分比表示
+spreadMethod | 如果设置的offset不能覆盖整个对象，该怎么填充。pad:起点或终点颜色会扩展到对象边缘。repeat:渐变重复起点到终点的过程。reflect:渐变按终点-起点-终点的排列重复。
+
+### 3. 径向渐变
+
+径向渐变的每个渐变点是一个圆形路径，从中心点向外扩散。设置方式与线性渐变大致相同。如果填充对象边界框不是正方形的，则过渡路径会变成椭圆来匹配边界框的长宽比。
+
+
+```
+<defs>
+	<radialGradient id="radial" cx="50%" cy="50%" >
+		<stop offset="0%" style="stop-color:#f00;"></stop>
+		<stop offset="50%" style="stop-color:#0f0;"></stop>
+		<stop offset="100%" style="stop-color:#00f;"></stop>
+	</radialGradient>
+</defs>
+<rect x="20" y="20" width="200" height="200" style="fill:url(#radial);stroke:black;"></rect>	
+```
+![image](https://github.com/xswei/SVG_Essentials/blob/master/image/8.5.jpg)
+
+radialGradient元素属性：
+
+属性 | 说明
+---|---
+cx,cy,r | 定义渐变的范围，测量半径的单位是对象的宽高均值，而不是对角线，默认都为50%
+fx,fy | 0%点所处的圆路径的圆心，默认和cx,cy一样
+spreadMethod | pad,repeat,reflect三个值，用来解决绘制范围没有到达图形边缘的情况。
+
+## 第九章 文本
+
+### 1. 相关术语
+
+术语 | 说明
+---|---
+字符 | XML中，字符是指带有一个数字值得一个或多个字节，数字值与Unidode标准对应
+符号 | 字符的视觉呈现。每个字符可以有多种视觉呈现
+字体 | 代表某个字符集合的一组符号
+基线 | 字体中所有符号以基线对齐
+上坡度 | 基线到字体中最高字符的顶部距离
+下坡度 | 基线到最深字符底部的距离
+大写字母高度、x高度 | 大写字母高度是指基线上大写字母的高度，x高度是基线到小写字母x顶部的高度
+
+### 2. text元素的基本属性
+
+text元素以指定的x和y值作为元素内容第一个字符的基线位置，默认样式黑色填充、没有轮廓。
+
+属性 | 说明
+---|---
+font-family | 以空格分割的一系列字体名称或通用字体名称
+font-size | 如果有多行文本，则font-size为良心的两条基线的距离
+font-weight | 两个值：bold(粗体)和nromal(默认) 
+font-style | 常用的两个值:italic(斜体)和normal
+text-decoration | 可能的值:none,underline(下划线),overline(上划线),line-through(删除线)
+word-spacing | 单词之间的距离
+letter-spacing | 字母之间的间距
+text-anchor | 对齐方式：start,middle,end
+textLength | 设置文本的长度
+lengthAdjust | 在指定了textLength时，可以通过lengthAdjust属性设置字符的调整方式，值为 spacing(默认)时,只调整字符的间距。当值为spacingAndGlyphs时，同时调整字符间距和字符本身的大小
+
+### 3. tspan元素
+
+text元素无法对文本进行换行操作，如果需要分行显示文本，则需要使用tspan元素。tspan元素与html的span元素类似，可以嵌套在文本内容中，并可以单独改变其内部文本内容的样式。
+
+tspan元素除大小，颜色等表现样式之外，还可以设置以下属性：
+
+
+属性 | 说明
+---|---
+dx,dy | x和y方向的偏移
+x,y | 对tspan进行绝对定位
+rotate | 旋转字符，可以同时设置多个值，这些值会依次作用在tspan包裹的字母上
+baseline-shift | 与dy属性设置上下标相比，这个属性更方便，当为super时，会上标。sub时为下标。仅仅在所在的tspan内有效
+
+### 4. 纵向文本
+
+文本一般从左到右排列，如果需要上下排列，则需要使用writing-mode属性。
+
+设置writing-mode属性值为tb(top to bottom)，可以将文本上下排列。
+
+### 5. 文本路径
+
+如果要使得文本沿着某条路径排列，则需要使用textPath元素。需要将文本放在textPath元素内部，然后使用textPath元素的xlink:href属性引用一个定义好的path元素。
+
+
+```
+<defs>
+	<path id="path" d="M30 40 C 50 10 ,70 10,120 40 S150 0,200 40" style="fill:none;stroke:black"></path>
+</defs>
+<g transform="translate(10,50)">
+	<path id="path" d="M30 40 C 50 10 ,70 10,120 40 S150 0,200 40" style="fill:none;stroke:black"></path>
+	<text>
+		<textPath xlink:href="#path">
+			hello world
+		</textPath>
+	</text>
+</g>
+<g transform="translate(10,100)">
+	<path id="path" d="M30 40 C 50 10 ,70 10,120 40 S150 0,200 40" style="fill:none;stroke:black"></path>
+	<text>
+		<textPath xlink:href="#path" startOffset="50%" text-anchor="middle">
+			hello world
+		</textPath>
+	</text>
+</g>
+```
+![image](https://github.com/xswei/SVG_Essentials/blob/master/image/8.6.jpg)
+
+startOffset属性用来指定文本的起点，当设置为50%，并且设置text-anchor为middle时，文本会被定为在path的中间。
+
+
+
+
 
 
 
